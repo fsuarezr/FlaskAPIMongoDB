@@ -7,14 +7,16 @@ app = Flask(__name__)
 
 #definig routes
 @app.route('/users', methods = ['GET'])
-def listUsers():
+def getUsers():
     result = db.getUsers()
     response = {
-        "Number of elements" : result[0],
-        "Recovered items" : result[1]
+        "Number of documents" : result[0],
+        "Documents recovered" : json.loads(result[1])
     }
     return templateSuccess(response)
     #return Response(response, mimetype='application/json')
+
+
 
 @app.route('/users', methods = ['POST'])
 def createUser():
