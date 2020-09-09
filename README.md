@@ -50,4 +50,4 @@ Una vez que tenga el servicio en ejecución, vaya a su IDE para hacer peticiones
 
 * **Franz Suárez** - *Backend Developer* - [fsuarezr](https://github.com/fsuarezr)
 
-⌨️ con ❤️ por [fsuarezr](https://github.com/fsuarezr) 😊
+⌨️ con ❤️ por [fsuarezr](https://github.com/fsuarezr) 🤘 
