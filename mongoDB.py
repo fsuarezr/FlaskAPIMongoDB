@@ -1,8 +1,10 @@
 from pymongo import MongoClient
 from pymongo import errors as mongoError
 from dotenv import load_dotenv
-import os,json
 from bson import json_util
+from bson.objectid import ObjectId
+import os,json
+
 
 load_dotenv()
 
@@ -25,6 +27,74 @@ def getUsers():
     response = json_util.dumps(result)
     cant = int(result.count())
     return cant, response
+
+def getUser(id):
+    db = connMongoDB()
+    collection = db[f'{MONGO_COLLECTION}']
+    try:
+        idMongo = ObjectId(id)
+    except:
+        message = {
+            'code': 400,
+            'message': 'The ID that you provide it´is not valid.'
+        }
+        return json_util.dumps(message)
+    
+    result = collection.find_one({"_id": idMongo})
+    response = json_util.dumps(result)
+    return response
+
+def updateUser(id, params):
+    try:
+        username = params['username']
+        password = params['password']
+        email = params['email']
+        message = {
+            'username': username,
+            'password': password,
+            'email': email
+        }
+    except:
+        message = {
+            'code': 400,
+            'message': 'We could not update the document per missing requiriments params'
+        }
+        return json_util.dumps(message)
+    try:
+        idMongo = ObjectId(id)
+    except:
+        message = {
+            'code': 400,
+            'message': 'The ID that you provide it´is not valid.'
+        }
+        return json_util.dumps(message)
+
+    db = connMongoDB()
+    collection = db[f'{MONGO_COLLECTION}']
+    
+    collection.update_one({"_id": idMongo},{'$set':message})
+    response = {
+        'message': f'User {id} was updated succesfully'
+    }
+    print(f'RESPONSE IS: {response}')
+    return response
+
+def deleteUser(id):
+    db = connMongoDB()
+    collection = db[f'{MONGO_COLLECTION}']
+    try:
+        idMongo = ObjectId(id)
+    except:
+        message = {
+            'code': 400,
+            'message': 'The ID that you provide it´is not valid.'
+        }
+        return json_util.dumps(message)
+    collection.delete_one({"_id": idMongo})
+    response = {
+        'message': f'User {id} was deleted succesfully'
+    }
+    return response
 
 def insertUser(params):
     username = params['username']
@@ -61,3 +131,6 @@ def insertUser(params):
             'message': f'{messageError} With codeName: {codeName}'
         }
         return message
+
+
+getUser('123ad')
