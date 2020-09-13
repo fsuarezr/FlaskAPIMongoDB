@@ -32,27 +32,27 @@ def createUser():
 
     if(number > 0):
         for element in array:
-            try:
+            if 'username' in element and 'email' in element and 'password' in element:
                 username = element['username']
                 password = element['password']
                 email = element['email']
-            except:
-                return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
             
-            if username and email and password:
-                params = {
-                    'username' : username,
-                    'password': password,
-                    'email': email
-                }
-                result = db.insertUser(params)
-                if hasattr(result, 'code'):
-                    return templateError(result)
-                else:
-                    response.append(result)
+                if username and email and password:
+                    params = {
+                        'username' : username,
+                        'password': password,
+                        'email': email
+                    }
+                    result = db.insertUser(params)
+                    if hasattr(result, 'code'):
+                        return templateError(result)
+                    else:
+                        response.append(result)
 
+                else:
+                    return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
             else:
-                return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
+                return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
 
     else:
         return templateError({'code': 204, 'message': 'The request does not contain elements'})
@@ -62,34 +62,34 @@ def createUser():
 
 @app.route('/users/<id>', methods = ['PUT'])
 def updateUser(id):
-    try:
-        username = request.json['username']
-        password = request.json['password']
-        email = request.json['email']
-    except:
-        return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
+    data = request.json
+    if 'username' in data and 'email' in data and 'password' in data:
+        username = data['username']
+        password = data['password']
+        email = data['email']
     
-    if username and email and password:
-        params = {
-            'username' : username,
-            'password': password,
-            'email': email
-        }
-        result = db.updateUser(id,params)
+        if username and email and password:
+            params = {
+                'username' : username,
+                'password': password,
+                'email': email
+            }
+            result = db.updateUser(id,params)
 
-        if hasattr(result, 'code'):
-            return templateError(result)
+            if hasattr(result, 'code'):
+                return templateError(result)
+            else:
+                return templateSuccess(result)
         else:
-            return templateSuccess(result)
+            return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
     else:
-        return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
+        return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
 
 
 @app.route('/users/<id>', methods = ['DELETE'])
 def deleteUser(id):
     print(id)
     result = db.deleteUser(id)
-    print(result)
     if hasattr(result, 'code'):
         return templateError(result)
     else:
