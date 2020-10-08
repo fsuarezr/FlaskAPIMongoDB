@@ -37,7 +37,7 @@ def createUser():
                 password = element['password']
                 email = element['email']
             
-                if username and email and password:
+                if username.strip() and email.strip() and password.strip():
                     params = {
                         'username' : username,
                         'password': password,
@@ -68,7 +68,7 @@ def updateUser(id):
         password = data['password']
         email = data['email']
     
-        if username and email and password:
+        if username.strip() and email.strip() and password.strip():
             params = {
                 'username' : username,
                 'password': password,
