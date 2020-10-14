@@ -10,8 +10,8 @@ app = Flask(__name__)
 def getUsers():
     result = db.getUsers()
     response = {
-        "Number of documents" : result[0],
-        "Documents recovered" : json.loads(result[1])
+        "Number_documents" : result[0],
+        "Documents_recovered" : json.loads(result[1])
     }
     return templateSuccess(response)
     #return Response(response, mimetype='application/json')
