@@ -20,29 +20,85 @@ def connMongoDB():
     db = conn[f'{MONGO_DATABASE}']
     return db
 
+def getConnMongoError(py_mongo_error):
+    error = str(py_mongo_error)
+    indexini = error.find('{')
+    indexfin = error.find('}')
+    extractError = error[indexini:(indexfin+1)].replace("'",'"')
+    jsonError = json.loads(extractError)
+    messageError = jsonError['errmsg']   
+    code = jsonError['code']
+    codeName = jsonError['codeName']
+    message = {
+        'code': code,
+        'message': f'{messageError} With codeName: {codeName}'
+    }
+    return message
+
 def getUsers():
-    db = connMongoDB()
-    collection = db[f'{MONGO_COLLECTION}']
-    result = collection.find()
-    response = json_util.dumps(result)
-    cant = int(result.count())
-    return cant, response
+    try:
+        db = connMongoDB()
+        collection = db[f'{MONGO_COLLECTION}']
+        result = collection.find()
+        response = json_util.dumps(result)
+        cant = int(result.count())
+        return cant, response
+
+    except mongoError.PyMongoError as py_mongo_error:
+        error = getConnMongoError(py_mongo_error)
+        return error
 
 def getUser(id):
-    db = connMongoDB()
-    collection = db[f'{MONGO_COLLECTION}']
     try:
-        idMongo = ObjectId(id)
+        db = connMongoDB()
+        try:
+            idMongo = ObjectId(id)
+        except:
+            message = {
+                'code': 400,
+                'message': 'The ID that you provide it is not valid.'
+            }
+            return message
+        
+        collection = db[f'{MONGO_COLLECTION}']
+        result = collection.find_one({"_id": idMongo})
+        response = json_util.dumps(result)
+        return response
+
+    except mongoError.PyMongoError as py_mongo_error:
+        error = getConnMongoError(py_mongo_error)
+        return error
+        
+def insertUser(params):
+    try:
+        username = params['username']
+        password = params['password']
+        email = params['email']
+        message = {
+            'username': username,
+            'password': password,
+            'email': email
+        }
     except:
         message = {
             'code': 400,
-            'message': 'The ID that you provide it´is not valid.'
+            'message': 'We could not update the document per missing requiriments params'
         }
-        return json_util.dumps(message)
-    
-    result = collection.find_one({"_id": idMongo})
-    response = json_util.dumps(result)
-    return response
+        return message
+
+    try:
+        db = connMongoDB()
+        collection = db[f'{MONGO_COLLECTION}'] 
+        id = collection.insert_one(message).inserted_id
+        message.update({"id": str(id)})
+        message.pop("_id")
+        response = {
+            'User inserted': message
+        }
+        return response
+    except mongoError.PyMongoError as py_mongo_error:
+        error = getConnMongoError(py_mongo_error)
+        return error
 
 def updateUser(id, params):
     try:
@@ -59,78 +115,47 @@ def updateUser(id, params):
             'code': 400,
             'message': 'We could not update the document per missing requiriments params'
         }
-        return json_util.dumps(message)
-    try:
-        idMongo = ObjectId(id)
-    except:
-        message = {
-            'code': 400,
-            'message': 'The ID that you provide it´is not valid.'
-        }
-        return json_util.dumps(message)
-
-    db = connMongoDB()
-    collection = db[f'{MONGO_COLLECTION}']
-    
-    collection.update_one({"_id": idMongo},{'$set':message})
-    response = {
-        'message': f'User {id} was updated succesfully'
-    }
-    print(f'RESPONSE IS: {response}')
-    return response
-
-def deleteUser(id):
-    db = connMongoDB()
-    collection = db[f'{MONGO_COLLECTION}']
-    try:
-        idMongo = ObjectId(id)
-    except:
-        message = {
-            'code': 400,
-            'message': 'The ID that you provide it´is not valid.'
-        }
-        return json_util.dumps(message)
-    collection.delete_one({"_id": idMongo})
-    response = {
-        'message': f'User {id} was deleted succesfully'
-    }
-    return response
-
-def insertUser(params):
-    username = params['username']
-    password = params['password']
-    email = params['email']
-    message = {
-        'username': username,
-        'password': password,
-        'email': email
-    }
-
+        return message
     try:
         db = connMongoDB()
-        collection = db[f'{MONGO_COLLECTION}'] 
-        id = collection.insert_one(message).inserted_id
-        message.update({"id": str(id)})
-        message.pop("_id")
+        try:
+            idMongo = ObjectId(id)
+        except:
+            message = {
+                'code': 400,
+                'message': 'The ID that you provide it is not valid.'
+            }
+            return message
+
+        collection = db[f'{MONGO_COLLECTION}']
+        collection.update_one({"_id": idMongo},{'$set':message})
         response = {
-            'User inserted': message
+            'message': f'User {id} was updated succesfully'
+        }
+        return response
+    except mongoError.PyMongoError as py_mongo_error:
+        error = getConnMongoError(py_mongo_error)
+        return error
+
+def deleteUser(id):
+    try:
+        db = connMongoDB()
+        try:
+            idMongo = ObjectId(id)
+        except:
+            message = {
+                'code': 400,
+                'message': 'The ID that you provide it is not valid.'
+            }
+            return message
+
+        collection = db[f'{MONGO_COLLECTION}']
+        collection.delete_one({"_id": idMongo})
+        response = {
+            'message': f'User {id} was deleted succesfully'
         }
         return response
 
     except mongoError.PyMongoError as py_mongo_error:
-        error = str(py_mongo_error)
-        indexini = error.find('{')
-        indexfin = error.find('}')
-        extractError = error[indexini:(indexfin+1)].replace("'",'"')
-        jsonError = json.loads(extractError)
-        messageError = jsonError['errmsg']   
-        code = jsonError['code']
-        codeName = jsonError['codeName']
-        message = {
-            'code': code,
-            'message': f'{messageError} With codeName: {codeName}'
-        }
-        return message
-
-
-getUser('123ad')
+        error = getConnMongoError(py_mongo_error)
+        return error

@@ -3,12 +3,15 @@ from response import templateError,templateSuccess
 import mongoDB as db
 import json
 
-app = Flask(__name__)
+app = Flask(__name__) 
 
 #definig routes
 @app.route('/users', methods = ['GET'])
 def getUsers():
     result = db.getUsers()
+    if 'code' in result:
+        return templateError(result)
+
     response = {
         "Number_documents" : result[0],
         "Documents_recovered" : json.loads(result[1])
@@ -19,7 +22,7 @@ def getUsers():
 @app.route('/users/<id>', methods = ['GET'])
 def getUser(id):
     result = db.getUser(id)
-    if hasattr(result, 'code'):
+    if 'code' in result:
         return templateError(result)
     else:
         return templateSuccess(json.loads(result))
@@ -44,7 +47,7 @@ def createUser():
                         'email': email
                     }
                     result = db.insertUser(params)
-                    if hasattr(result, 'code'):
+                    if 'code' in result:
                         return templateError(result)
                     else:
                         response.append(result)
@@ -76,7 +79,7 @@ def updateUser(id):
             }
             result = db.updateUser(id,params)
 
-            if hasattr(result, 'code'):
+            if 'code' in result:
                 return templateError(result)
             else:
                 return templateSuccess(result)
@@ -90,7 +93,7 @@ def updateUser(id):
 def deleteUser(id):
     print(id)
     result = db.deleteUser(id)
-    if hasattr(result, 'code'):
+    if 'code' in result:
         return templateError(result)
     else:
         return templateSuccess(result)
