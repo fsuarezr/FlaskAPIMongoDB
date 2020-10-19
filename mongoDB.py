@@ -1,7 +1,6 @@
 from pymongo import MongoClient
 from pymongo import errors as mongoError
 from dotenv import load_dotenv
-from bson import json_util
 from bson.objectid import ObjectId
 import os,json
 

@@ -1,7 +1,6 @@
 from flask import Flask, request, Response
 from response import templateError,templateSuccess
 import mongoDB as db
-import json
 
 app = Flask(__name__) 
 
