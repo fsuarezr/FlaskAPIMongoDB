@@ -62,8 +62,9 @@ def getUser(id):
         
         collection = db[f'{MONGO_COLLECTION}']
         result = collection.find_one({"_id": idMongo})
-        response = json_util.dumps(result)
-        return response
+        result.update({"id": str(id)})
+        result.pop("_id")
+        return result
 
     except mongoError.PyMongoError as py_mongo_error:
         error = getConnMongoError(py_mongo_error)

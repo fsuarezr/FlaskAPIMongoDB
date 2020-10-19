@@ -10,22 +10,22 @@ app = Flask(__name__)
 def getUsers():
     result = db.getUsers()
     if 'code' in result:
-        return templateError(result)
+        return Response(templateError(result), content_type='application/json')
 
     response = {
         "Number_documents" : result[0],
         "Documents_recovered" : json.loads(result[1])
     }
-    return templateSuccess(response)
-    #return Response(response, mimetype='application/json')
+    #return templateSuccess(response)
+    return Response(templateSuccess(response), content_type='application/json')
 
 @app.route('/users/<id>', methods = ['GET'])
 def getUser(id):
     result = db.getUser(id)
     if 'code' in result:
-        return templateError(result)
+        Response(templateError(result), content_type='application/json')
     else:
-        return templateSuccess(json.loads(result))
+        return Response(templateSuccess(result), content_type='application/json')
 
 @app.route('/users', methods = ['POST'])
 def createUser():
@@ -48,19 +48,22 @@ def createUser():
                     }
                     result = db.insertUser(params)
                     if 'code' in result:
-                        return templateError(result)
+                        Response(templateError(result), content_type='application/json')
                     else:
                         response.append(result)
 
                 else:
-                    return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
+                    message = {'code': 400, 'message': 'The parameters cannot be empty'}
+                    return Response(templateError(message), content_type='application/json')
             else:
-                return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
+                message = {'code': 400, 'message': 'There is one or more missing parameters: username, password or email'}
+                return Response(templateError(message), content_type='application/json')
 
     else:
-        return templateError({'code': 204, 'message': 'The request does not contain elements'})
+        message = {'code': 204, 'message': 'The request does not contain elements'}
+        return Response(templateError(message), content_type='application/json')
     
-    return templateSuccess(response)
+    return Response(templateSuccess(response), content_type='application/json')
     #return templateSuccess('Messages received')
 
 @app.route('/users/<id>', methods = ['PUT'])
@@ -80,13 +83,15 @@ def updateUser(id):
             result = db.updateUser(id,params)
 
             if 'code' in result:
-                return templateError(result)
+                Response(templateError(result), content_type='application/json')
             else:
-                return templateSuccess(result)
+                return Response(templateSuccess(result), content_type='application/json')
         else:
-            return templateError({'code': 400, 'message': 'The parameters cannot be empty'})
+            message ={'code': 400, 'message': 'The parameters cannot be empty'}
+            return Response(templateError(message), content_type='application/json')
     else:
-        return templateError({'code': 400, 'message': 'There is one or more missing parameters: username, password or email'})
+        message = {'code': 400, 'message': 'There is one or more missing parameters: username, password or email'}
+        return Response(templateError(message), content_type='application/json')
 
 
 @app.route('/users/<id>', methods = ['DELETE'])
@@ -94,9 +99,9 @@ def deleteUser(id):
     print(id)
     result = db.deleteUser(id)
     if 'code' in result:
-        return templateError(result)
+        Response(templateError(result), content_type='application/json')
     else:
-        return templateSuccess(result)
+        return Response(templateSuccess(result), content_type='application/json')
 
 if __name__ == '__main__':
     app.run(debug=True)
