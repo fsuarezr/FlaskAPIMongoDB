@@ -40,9 +40,13 @@ def getUsers():
         db = connMongoDB()
         collection = db[f'{MONGO_COLLECTION}']
         result = collection.find()
-        response = json_util.dumps(result)
+        data = []
+        for element in result:
+            element.update({"id": str(element['_id'])})
+            element.pop("_id")
+            data.append(element)
         cant = int(result.count())
-        return cant, response
+        return cant, data
 
     except mongoError.PyMongoError as py_mongo_error:
         error = getConnMongoError(py_mongo_error)

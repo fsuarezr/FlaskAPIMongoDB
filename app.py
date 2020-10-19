@@ -14,7 +14,7 @@ def getUsers():
 
     response = {
         "Number_documents" : result[0],
-        "Documents_recovered" : json.loads(result[1])
+        "Documents_recovered" : result[1]
     }
     #return templateSuccess(response)
     return Response(templateSuccess(response), content_type='application/json')
