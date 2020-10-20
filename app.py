@@ -22,7 +22,7 @@ def getUsers():
 def getUser(id):
     result = db.getUser(id)
     if 'code' in result:
-        Response(templateError(result), content_type='application/json')
+        return Response(templateError(result), content_type='application/json')
     else:
         return Response(templateSuccess(result), content_type='application/json')
 
@@ -47,7 +47,7 @@ def createUser():
                     }
                     result = db.insertUser(params)
                     if 'code' in result:
-                        Response(templateError(result), content_type='application/json')
+                        return Response(templateError(result), content_type='application/json')
                     else:
                         response.append(result)
 
@@ -82,7 +82,7 @@ def updateUser(id):
             result = db.updateUser(id,params)
 
             if 'code' in result:
-                Response(templateError(result), content_type='application/json')
+                return Response(templateError(result), content_type='application/json')
             else:
                 return Response(templateSuccess(result), content_type='application/json')
         else:
@@ -98,7 +98,7 @@ def deleteUser(id):
     print(id)
     result = db.deleteUser(id)
     if 'code' in result:
-        Response(templateError(result), content_type='application/json')
+        return Response(templateError(result), content_type='application/json')
     else:
         return Response(templateSuccess(result), content_type='application/json')
 

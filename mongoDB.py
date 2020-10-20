@@ -65,9 +65,17 @@ def getUser(id):
         
         collection = db[f'{MONGO_COLLECTION}']
         result = collection.find_one({"_id": idMongo})
-        result.update({"id": str(id)})
-        result.pop("_id")
-        return result
+        if result != None:
+            result.update({"id": str(id)})
+            result.pop("_id")
+            return result
+        else:
+            """message = {
+                'code': 400,
+                'message': 'There is no documents with that ID'
+            }"""
+            message = 'There is no documents with that ID'
+            return message
 
     except mongoError.PyMongoError as py_mongo_error:
         error = getConnMongoError(py_mongo_error)
